@@ -1,0 +1,10 @@
+{
+  "name": "SSVK Menu Builder",
+  "short_name": "SSVK Menu",
+  "description": "Sri Siva Vishnu Catering - Menu Builder",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdf8f0",
+  "theme_color": "#8b1a1a",
+  "icons": []
+}
