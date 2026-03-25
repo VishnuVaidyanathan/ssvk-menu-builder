@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mandapam Pay List</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Tamil:ital@0;1&family=DM+Serif+Display&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #E8873A;
+    --deep: #1A1208;
+    --cream: #FDF6EC;
+    --gold: #C9933A;
+    --muted: #8B7355;
+    --line: #E0CBA8;
+    --red: #C0392B;
+    --green: #1E7D4B;
+    --card: #FFFAF3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--deep); font-family: 'DM Mono', monospace; min-height: 100vh; }
+
+  header {
+    background: var(--deep); color: var(--cream);
+    padding: 14px 16px; position: sticky; top: 0; z-index: 100;
+    border-bottom: 3px solid var(--saffron);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  header h1 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; }
+  header span { font-size: 0.65rem; color: var(--saffron); letter-spacing: 1px; text-transform: uppercase; }
+
+  .main { padding: 14px; max-width: 680px; margin: 0 auto; }
+
+  .event-card {
+    background: var(--deep); border-radius: 12px; padding: 16px;
+    margin-bottom: 18px; border: 1px solid var(--gold);
+  }
+  .event-card label { color: var(--saffron); font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+  .event-card input, .event-card select {
+    width: 100%; background: #2A1F0E; border: 1px solid var(--gold);
+    border-radius: 8px; color: var(--cream); font-family: 'DM Mono', monospace;
+    font-size: 0.88rem; padding: 9px 12px; margin-bottom: 10px; outline: none;
+  }
+  .event-card input:focus, .event-card select:focus { border-color: var(--saffron); }
+  .event-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .btn-primary {
+    width: 100%; background: var(--saffron); color: var(--deep);
+    border: none; border-radius: 8px; padding: 11px;
+    font-family: 'DM Mono', monospace; font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; letter-spacing: 1px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif; font-size: 1.05rem;
+    color: var(--deep); margin: 18px 0 10px;
+    border-bottom: 2px solid var(--saffron); padding-bottom: 5px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-title span { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  .item-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .item-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 14px; cursor: pointer; background: white;
+    border-bottom: 1px solid var(--line);
+  }
+  .item-header:hover { background: #FFF8EE; }
+  .item-name { font-family: 'Tiro Tamil', serif; font-size: 0.98rem; }
+  .item-vendor { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+  .item-total { font-size: 0.82rem; font-weight: 500; color: var(--saffron); margin-right: 8px; white-space: nowrap; }
+  .toggle-icon { color: var(--muted); font-size: 0.75rem; transition: transform 0.2s; }
+
+  .item-body { padding: 12px 14px; display: none; }
+  .item-body.open { display: block; }
+
+  .vendor-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+  .vendor-row label { font-size: 0.62rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+  .vendor-row input {
+    flex: 1; border: 1px solid var(--line); border-radius: 6px;
+    padding: 7px 10px; font-family: 'Tiro Tamil', serif; font-size: 0.85rem;
+    background: white; color: var(--deep); outline: none;
+  }
+  .vendor-row input:focus { border-color: var(--saffron); }
+
+  .field-group { margin-bottom: 10px; }
+  .field-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .field-input {
+    width: 100%; border: 1px solid var(--line); border-radius: 6px;
+    padding: 8px 10px; font-family: 'DM Mono', monospace; font-size: 0.82rem;
+    background: white; color: var(--deep); outline: none;
+  }
+  .field-input:focus { border-color: var(--saffron); }
+  .field-input[readonly] { background: #F5F0E8; color: var(--muted); }
+  textarea.field-input { resize: vertical; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  .delivery-block {
+    border: 1px dashed var(--line); border-radius: 8px;
+    padding: 10px; margin-bottom: 10px; background: #FFFDF8;
+  }
+  .delivery-title {
+    font-size: 0.65rem; color: var(--saffron); letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .btn-del-delivery {
+    background: none; border: none; color: var(--red);
+    cursor: pointer; font-size: 0.75rem; padding: 2px 6px;
+  }
+  .btn-add {
+    background: none; border: 1px dashed var(--saffron); border-radius: 6px;
+    color: var(--saffron); cursor: pointer; padding: 7px 12px;
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; width: 100%; margin-top: 4px;
+  }
+
+  .photo-upload-area {
+    border: 2px dashed var(--line); border-radius: 8px; padding: 14px;
+    text-align: center; cursor: pointer; background: white; margin-bottom: 8px;
+  }
+  .photo-upload-area:hover { border-color: var(--saffron); }
+  .photo-upload-area input[type=file] { display: none; }
+  .photo-preview { width: 100%; border-radius: 6px; margin-top: 6px; max-height: 160px; object-fit: cover; }
+  .photo-icon { font-size: 1.8rem; margin-bottom: 4px; }
+  .photo-label { font-size: 0.72rem; color: var(--muted); }
+
+  .toggle-row { display: flex; gap: 10px; margin-bottom: 8px; }
+  .toggle-btn {
+    flex: 1; padding: 10px; border-radius: 8px; border: 2px solid var(--line);
+    background: white; font-family: 'DM Mono', monospace; font-size: 0.85rem;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .toggle-btn.active-yes { border-color: var(--green); background: #E8F5EE; color: var(--green); font-weight: 600; }
+  .toggle-btn.active-no { border-color: var(--red); background: #FDEDED; color: var(--red); font-weight: 600; }
+
+  .sub-heading {
+    font-size: 0.7rem; color: var(--deep); font-weight: 500;
+    letter-spacing: 1px; text-transform: uppercase;
+    background: var(--line); padding: 4px 8px; border-radius: 4px;
+    margin-bottom: 8px; display: inline-block;
+  }
+
+  .grand-total {
+    background: var(--deep); color: var(--cream); border-radius: 12px;
+    padding: 16px 20px; margin: 18px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .grand-total .label { font-family: 'DM Serif Display', serif; font-size: 1rem; }
+  .grand-total .amount { font-size: 1.4rem; color: var(--saffron); font-weight: 500; }
+
+  .btn-pdf {
+    width: 100%; background: var(--green); color: white; border: none;
+    border-radius: 8px; padding: 13px; font-family: 'DM Mono', monospace;
+    font-size: 0.88rem; cursor: pointer; margin-bottom: 30px; letter-spacing: 1px;
+  }
+
+  select.field-input { appearance: auto; }
+
+  @media print {
+    header, .event-card, .btn-pdf, .btn-add, .btn-del-delivery, .vendor-row, .toggle-icon { display: none !important; }
+    .item-body { display: block !important; }
+    body { background: white; font-size: 11px; }
+    .print-header { display: block !important; }
+    .item-card { border: 1px solid #ccc; margin-bottom: 6px; break-inside: avoid; }
+    .grand-total { background: #1A1208 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .photo-preview { max-height: 100px; }
+  }
+
+  .print-header { display: none; text-align: center; margin-bottom: 14px; }
+  .print-header h2 { font-size: 1.1rem; }
+  .print-header p { font-size: 0.8rem; color: #666; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Mandapam Pay List</h1>
+  <span>Vendor Tracker</span>
+</header>
+
+<div class="main">
+  <div class="event-card">
+    <label>Mandapam Name</label>
+    <input type="text" id="mandapamName" placeholder="e.g. Sri Murugan Thirumana Mahal">
+    <div class="event-row">
+      <div>
+        <label>Event Date</label>
+        <input type="date" id="eventDate">
+      </div>
+      <div>
+        <label>Function Type</label>
+        <select id="functionType">
+          <option>Marriage</option>
+          <option>Engagement</option>
+          <option>Reception</option>
+          <option>Birthday</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="initApp()">📂 Load Pay List</button>
+  </div>
+
+  <div id="appSection" style="display:none">
+    <div class="print-header" id="printHeader"></div>
+    <div class="section-title">Vendor Items <span id="itemCount"></span></div>
+    <div id="itemsList"></div>
+    <div class="grand-total">
+      <span class="label">Grand Total</span>
+      <span class="amount" id="grandTotal">₹0</span>
+    </div>
+    <button class="btn-pdf" onclick="doPrint()">📤 Export PDF & Share on WhatsApp</button>
+  </div>
+</div>
+
+<script>
+var state = {};
+
+var VENDORS = [
+  { id: 'malikai',     name: 'மளிகை',                 vendor: 'NJ மளிகை',               type: 'photo_amount' },
+  { id: 'kaigari',     name: 'காய்கறி',                vendor: 'துரை',                   type: 'photo_amount' },
+  { id: 'paal',        name: 'பால் / தயிர்',            vendor: 'சுரேஷ்',                 type: 'paal_tayir' },
+  { id: 'waterbottle', name: 'Water Bottle 300ml',     vendor: 'சுரேஷ்',                 type: 'water_bottle' },
+  { id: 'watercan',    name: 'Water Can',              vendor: 'சுரேஷ்',                 type: 'water_can' },
+  { id: 'senthil',     name: 'செந்தில் முருகன் மளிகை', vendor: 'செந்தில் முருகன்',        type: 'emergency_buy' },
+  { id: 'ilai',        name: 'இலை',                   vendor: 'மாசியாபிள்ளை',            type: 'ilai' },
+  { id: 'dosamaavu',   name: 'தோசை மாவு',              vendor: 'SR மாவு மில்',            type: 'maavu' },
+  { id: 'thengai',     name: 'தேங்காய்',               vendor: 'KS தேங்காய்',            type: 'thengai' },
+  { id: 'icecream',    name: 'Icecream',               vendor: 'Raghavendra',             type: 'icecream' },
+  { id: 'beeda',       name: 'Beeda',                  vendor: 'Baba Beeda',              type: 'beeda' },
+  { id: 'pakkanam',    name: 'பக்ஷணம்',                vendor: 'ஆரணி / ராஜா / சங்கராஸ்',  type: 'pakkanam' },
+  { id: 'chapathi',    name: 'Chapathi',               vendor: 'ராஜி மாமி',               type: 'chapathi' },
+  { id: 'nicook',      name: 'North Indian Cook',      vendor: 'Chandru',                 type: 'ni_cook' },
+  { id: 'tablefrill',  name: 'Table Frill',            vendor: 'Chandru',                 type: 'table_frill' },
+  { id: 'stalls',      name: 'Stalls',                 vendor: 'Chandru',                 type: 'stalls' },
+  { id: 'thamboola',   name: 'தாம்பூல பை',              vendor: 'Eshwari Bags',            type: 'thamboola_bag' },
+  { id: 'maalai',      name: 'பூ மாலை',                 vendor: 'சேகர் / ஶ்ரீதர்',          type: 'simple_amount' },
+  { id: 'nadaswaram',  name: 'நாதஸ்வரம்',               vendor: '',                        type: 'nadaswaram' },
+];
+
+var PAKKANAM_ITEMS = ['7 சுத்து முறுக்கு','5 சுத்து முறுக்கு','தேன்குழல்','அதிரசம்','முள்ளு முறுக்கு'];
+
+function today() { return new Date().toISOString().split('T')[0]; }
+
+function defaultData(type) {
+  if (type === 'photo_amount')  return { deliveries: [{ photo: null, amount: '' }] };
+  if (type === 'paal_tayir')    return { rate_paal: '', rate_tayir: '', deliveries: [{ date: today(), time: '', paal: '', tayir: '' }] };
+  if (type === 'water_bottle')  return { deliveries: [{ cases: '', bpc: '', ppb: '' }] };
+  if (type === 'water_can')     return { deliveries: [{ count: '', price: '' }] };
+  if (type === 'emergency_buy') return { entries: [{ amount: '', person: '' }] };
+  if (type === 'ilai')          return { rate_edu: '', rate_nuni: '', rate_buffet: '', deliveries: [{ date: today(), edu: '', nuni: '', buffet: '' }] };
+  if (type === 'maavu')         return { rate: '', deliveries: [{ date: today(), time: '', kg: '' }] };
+  if (type === 'thengai')       return { tamboolam: { qty: '', rate: '' }, samayal: { qty: '', rate: '' } };
+  if (type === 'icecream')      return { entries: [{ received: '', returned: '', note: '' }] };
+  if (type === 'beeda')         return { pockets: '', spot: '' };
+  if (type === 'pakkanam')      return { entries: [{ item: PAKKANAM_ITEMS[0], qty: '', rate: '' }] };
+  if (type === 'chapathi')      return { small: { qty: '', rate: '' }, big: { qty: '', rate: '' } };
+  if (type === 'ni_cook')       return { cooks: '', guests: '', items: '' };
+  if (type === 'table_frill')   return { value: null, amount: '' };
+  if (type === 'stalls')        return { entries: [{ desc: '', rate: '' }] };
+  if (type === 'thamboola_bag') return { entries: [{ qty: '', amount: '' }] };
+  if (type === 'simple_amount') return { entries: [{ amount: '' }] };
+  if (type === 'nadaswaram')    return { name: '', amount: '' };
+  return {};
+}
+
+function initApp() {
+  var mandapam = document.getElementById('mandapamName').value.trim();
+  var date = document.getElementById('eventDate').value;
+  if (!mandapam || !date) { alert('Please enter Mandapam name and date.'); return; }
+  var key = 'mpl_' + mandapam + '_' + date;
+  var saved = localStorage.getItem(key);
+  if (saved) {
+    state = JSON.parse(saved);
+  } else {
+    state = { key: key, vendors: {} };
+    VENDORS.forEach(function(v) { state.vendors[v.id] = { vendor: v.vendor, data: defaultData(v.type) }; });
+  }
+  state.key = key;
+  var dateStr = new Date(date + 'T00:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+  var fn = document.getElementById('functionType').value;
+  document.getElementById('printHeader').innerHTML = '<h2>' + mandapam + '</h2><p>' + fn + ' &nbsp;|&nbsp; ' + dateStr + '</p>';
+  document.getElementById('itemCount').textContent = VENDORS.length + ' items';
+  document.getElementById('appSection').style.display = 'block';
+  renderAll();
+}
+
+function save() {
+  if (state.key) localStorage.setItem(state.key, JSON.stringify(state));
+  updateGrandTotal();
+}
+
+function renderAll() {
+  var list = document.getElementById('itemsList');
+  list.innerHTML = '';
+  VENDORS.forEach(function(v) { list.appendChild(buildCard(v)); });
+  updateGrandTotal();
+}
+
+function buildCard(v) {
+  var d = state.vendors[v.id];
+  var card = document.createElement('div');
+  card.className = 'item-card';
+  card.id = 'card_' + v.id;
+  var total = calcTotal(v.id, v.type);
+  card.innerHTML =
+    '<div class="item-header" onclick="toggleCard(\'' + v.id + '\')">' +
+      '<div><div class="item-name">' + v.name + '</div><div class="item-vendor">' + d.vendor + '</div></div>' +
+      '<span class="item-total" id="itotal_' + v.id + '">' + (total > 0 ? '&#8377;' + total.toLocaleString('en-IN') : '') + '</span>' +
+      '<span class="toggle-icon" id="icon_' + v.id + '">&#9660;</span>' +
+    '</div>' +
+    '<div class="item-body" id="body_' + v.id + '">' +
+      '<div class="vendor-row">' +
+        '<label>Vendor</label>' +
+        '<input type="text" value="' + escHtml(d.vendor) + '" onchange="updateVendor(\'' + v.id + '\', this.value)">' +
+      '</div>' +
+      '<div id="content_' + v.id + '">' + renderContent(v.id, v.type) + '</div>' +
+    '</div>';
+  return card;
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toggleCard(id) {
+  var body = document.getElementById('body_' + id);
+  var icon = document.getElementById('icon_' + id);
+  body.classList.toggle('open');
+  icon.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+function updateVendor(id, val) {
+  state.vendors[id].vendor = val;
+  document.querySelector('#card_' + id + ' .item-vendor').textContent = val;
+  save();
+}
+
+function renderContent(id, type) {
+  if (type === 'photo_amount')   return renderPhotoAmount(id);
+  if (type === 'paal_tayir')     return renderPaalTayir(id);
+  if (type === 'water_bottle')   return renderWaterBottle(id);
+  if (type === 'water_can')      return renderWaterCan(id);
+  if (type === 'emergency_buy')  return renderEmergency(id);
+  if (type === 'ilai')           return renderIlai(id);
+  if (type === 'maavu')          return renderMaavu(id);
+  if (type === 'thengai')        return renderThengai(id);
+  if (type === 'icecream')       return renderIcecream(id);
+  if (type === 'beeda')          return renderBeeda(id);
+  if (type === 'pakkanam')       return renderPakkanam(id);
+  if (type === 'chapathi')       return renderChapathi(id);
+  if (type === 'ni_cook')        return renderNiCook(id);
+  if (type === 'table_frill')    return renderTableFrill(id);
+  if (type === 'stalls')         return renderStalls(id);
+  if (type === 'thamboola_bag')  return renderThamboolaBag(id);
+  if (type === 'simple_amount')  return renderSimpleAmount(id);
+  if (type === 'nadaswaram')     return renderNadaswaram(id);
+  return '';
+}
+
+// ── Photo + Amount ──────────────────────────────────────────────────
+function renderPhotoAmount(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.deliveries.forEach(function(del, i) {
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Delivery ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delDelivery(\'' + id + '\',\'photo_amount\',' + i + ')">&#10005; Remove</button></div>' +
+      '<div class="photo-upload-area" onclick="triggerPhoto(\'' + id + '\',' + i + ')">' +
+        '<input type="file" accept="image/*" capture="environment" id="photo_' + id + '_' + i + '" onchange="photoSelected(\'' + id + '\',' + i + ',this)">' +
+        (del.photo ? '<img src="' + del.photo + '" class="photo-preview">' :
+          '<div class="photo-icon">&#128247;</div><div class="photo-label">Tap to capture / upload bill photo</div>') +
+      '</div>' +
+      '<div class="field-group"><div class="field-label">Amount (&#8377;)</div>' +
+        '<input class="field-input" type="number" placeholder="0" value="' + escHtml(del.amount) + '" oninput="setPAAmount(\'' + id + '\',' + i + ',this.value)"></div>' +
+    '</div>';
+  });
+  html += '<button class="btn-add" onclick="addDelivery(\'' + id + '\',\'photo_amount\')">+ Add Delivery</button>';
+  return html;
+}
+
+function triggerPhoto(id, i) { document.getElementById('photo_' + id + '_' + i).click(); }
+
+function photoSelected(id, i, input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    state.vendors[id].data.deliveries[i].photo = e.target.result;
+    save(); refreshContent(id);
+  };
+  reader.readAsDataURL(file);
+}
+
+function setPAAmount(id, i, val) {
+  state.vendors[id].data.deliveries[i].amount = val;
+  save(); refreshItemTotal(id);
+}
+
+// ── Paal / Tayir ────────────────────────────────────────────────────
+function renderPaalTayir(id) {
+  var d = state.vendors[id].data;
+  var html = '<div class="grid2" style="margin-bottom:10px">' +
+    '<div class="field-group"><div class="field-label">பால் Rate (&#8377;/L)</div>' +
+      '<input class="field-input" type="number" placeholder="0" value="' + escHtml(d.rate_paal) + '" oninput="setField(\'' + id + '\',\'rate_paal\',this.value)"></div>' +
+    '<div class="field-group"><div class="field-label">தயிர் Rate (&#8377;/L)</div>' +
+      '<input class="field-input" type="number" placeholder="0" value="' + escHtml(d.rate_tayir) + '" oninput="setField(\'' + id + '\',\'rate_tayir\',this.value)"></div>' +
+    '</div>';
+  d.deliveries.forEach(function(del, i) {
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Delivery ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delDelivery(\'' + id + '\',\'paal_tayir\',' + i + ')">&#10005;</button></div>' +
+      '<div class="grid3">' +
+        '<div class="field-group"><div class="field-label">Date</div><input class="field-input" type="date" value="' + escHtml(del.date) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'date\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Time</div><input class="field-input" type="time" value="' + escHtml(del.time) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'time\',this.value)"></div>' +
+        '<div></div>' +
+        '<div class="field-group"><div class="field-label">பால் (Litres)</div><input class="field-input" type="number" placeholder="0" step="0.1" value="' + escHtml(del.paal) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'paal\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">தயிர் (Litres)</div><input class="field-input" type="number" placeholder="0" step="0.1" value="' + escHtml(del.tayir) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'tayir\',this.value)"></div>' +
+      '</div></div>';
+  });
+  html += '<button class="btn-add" onclick="addDelivery(\'' + id + '\',\'paal_tayir\')">+ Add Delivery</button>';
+  return html;
+}
+
+// ── Water Bottle ────────────────────────────────────────────────────
+function renderWaterBottle(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.deliveries.forEach(function(del, i) {
+    var tot = (parseFloat(del.cases)||0)*(parseFloat(del.bpc)||0)*(parseFloat(del.ppb)||0);
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Delivery ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delDelivery(\'' + id + '\',\'water_bottle\',' + i + ')">&#10005;</button></div>' +
+      '<div class="grid3">' +
+        '<div class="field-group"><div class="field-label">Cases</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(del.cases) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'cases\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Bottles/Case</div><input class="field-input" type="number" placeholder="30" value="' + escHtml(del.bpc) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'bpc\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Price/Bottle (&#8377;)</div><input class="field-input" type="number" placeholder="0" step="0.5" value="' + escHtml(del.ppb) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'ppb\',this.value)"></div>' +
+      '</div>' +
+      '<div class="field-group"><div class="field-label">Total</div><input class="field-input" readonly value="' + (tot > 0 ? '&#8377;' + tot.toLocaleString('en-IN') : '') + '"></div>' +
+    '</div>';
+  });
+  html += '<button class="btn-add" onclick="addDelivery(\'' + id + '\',\'water_bottle\')">+ Add Delivery</button>';
+  return html;
+}
+
+// ── Water Can ───────────────────────────────────────────────────────
+function renderWaterCan(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.deliveries.forEach(function(del, i) {
+    var tot = (parseFloat(del.count)||0)*(parseFloat(del.price)||0);
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Delivery ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delDelivery(\'' + id + '\',\'water_can\',' + i + ')">&#10005;</button></div>' +
+      '<div class="grid2">' +
+        '<div class="field-group"><div class="field-label">Number of Cans</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(del.count) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'count\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Price/Can (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(del.price) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'price\',this.value)"></div>' +
+      '</div>' +
+      '<div class="field-group"><div class="field-label">Total</div><input class="field-input" readonly value="' + (tot > 0 ? '&#8377;' + tot.toLocaleString('en-IN') : '') + '"></div>' +
+    '</div>';
+  });
+  html += '<button class="btn-add" onclick="addDelivery(\'' + id + '\',\'water_can\')">+ Add Delivery</button>';
+  return html;
+}
+
+// ── Emergency Buy ───────────────────────────────────────────────────
+function renderEmergency(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.entries.forEach(function(e, i) {
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Entry ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delEntry(\'' + id + '\',\'emergency_buy\',' + i + ')">&#10005;</button></div>' +
+      '<div class="grid2">' +
+        '<div class="field-group"><div class="field-label">Amount (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(e.amount) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'amount\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Employee Name</div><input class="field-input" type="text" placeholder="Name" value="' + escHtml(e.person) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'person\',this.value)"></div>' +
+      '</div></div>';
+  });
+  html += '<button class="btn-add" onclick="addEntry(\'' + id + '\',\'emergency_buy\')">+ Add Entry</button>';
+  return html;
+}
+
+// ── Ilai ────────────────────────────────────────────────────────────
+function renderIlai(id) {
+  var d = state.vendors[id].data;
+  var html = '<div class="grid3" style="margin-bottom:10px">' +
+    '<div class="field-group"><div class="field-label">&#2960;&#2975;&#3009; Rate</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.rate_edu) + '" oninput="setField(\'' + id + '\',\'rate_edu\',this.value)"></div>' +
+    '<div class="field-group"><div class="field-label">&#2984;&#3009;&#2984;&#3007; Rate</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.rate_nuni) + '" oninput="setField(\'' + id + '\',\'rate_nuni\',this.value)"></div>' +
+    '<div class="field-group"><div class="field-label">Buffet Rate</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.rate_buffet) + '" oninput="setField(\'' + id + '\',\'rate_buffet\',this.value)"></div>' +
+    '</div>';
+  d.deliveries.forEach(function(del, i) {
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Delivery ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delDelivery(\'' + id + '\',\'ilai\',' + i + ')">&#10005;</button></div>' +
+      '<div class="field-group" style="max-width:180px"><div class="field-label">Date</div><input class="field-input" type="date" value="' + escHtml(del.date) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'date\',this.value)"></div>' +
+      '<div class="grid3">' +
+        '<div class="field-group"><div class="field-label">&#2960;&#2975;&#3009; (qty)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(del.edu) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'edu\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">&#2984;&#3009;&#2984;&#3007; (qty)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(del.nuni) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'nuni\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Buffet (qty)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(del.buffet) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'buffet\',this.value)"></div>' +
+      '</div></div>';
+  });
+  html += '<button class="btn-add" onclick="addDelivery(\'' + id + '\',\'ilai\')">+ Add Delivery</button>';
+  return html;
+}
+
+// ── Maavu ───────────────────────────────────────────────────────────
+function renderMaavu(id) {
+  var d = state.vendors[id].data;
+  var html = '<div class="field-group" style="max-width:180px;margin-bottom:10px">' +
+    '<div class="field-label">Rate (&#8377;/kg)</div>' +
+    '<input class="field-input" type="number" placeholder="0" value="' + escHtml(d.rate) + '" oninput="setField(\'' + id + '\',\'rate\',this.value)"></div>';
+  d.deliveries.forEach(function(del, i) {
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Delivery ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delDelivery(\'' + id + '\',\'maavu\',' + i + ')">&#10005;</button></div>' +
+      '<div class="grid3">' +
+        '<div class="field-group"><div class="field-label">Date</div><input class="field-input" type="date" value="' + escHtml(del.date) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'date\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Time</div><input class="field-input" type="time" value="' + escHtml(del.time) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'time\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Qty (kg)</div><input class="field-input" type="number" placeholder="0" step="0.5" value="' + escHtml(del.kg) + '" oninput="setDeliveryField(\'' + id + '\',' + i + ',\'kg\',this.value)"></div>' +
+      '</div></div>';
+  });
+  html += '<button class="btn-add" onclick="addDelivery(\'' + id + '\',\'maavu\')">+ Add Delivery</button>';
+  return html;
+}
+
+// ── Thengai ─────────────────────────────────────────────────────────
+function renderThengai(id) {
+  var d = state.vendors[id].data;
+  return '<div class="sub-heading">தாம்பூல பை காய்</div>' +
+    '<div class="grid2" style="margin-bottom:12px">' +
+      '<div class="field-group"><div class="field-label">Qty (nos)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.tamboolam.qty) + '" oninput="setNestedField(\'' + id + '\',\'tamboolam\',\'qty\',this.value)"></div>' +
+      '<div class="field-group"><div class="field-label">Rate (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.tamboolam.rate) + '" oninput="setNestedField(\'' + id + '\',\'tamboolam\',\'rate\',this.value)"></div>' +
+    '</div>' +
+    '<div class="sub-heading">சமையல் காய்</div>' +
+    '<div class="grid2">' +
+      '<div class="field-group"><div class="field-label">Qty (nos)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.samayal.qty) + '" oninput="setNestedField(\'' + id + '\',\'samayal\',\'qty\',this.value)"></div>' +
+      '<div class="field-group"><div class="field-label">Rate (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.samayal.rate) + '" oninput="setNestedField(\'' + id + '\',\'samayal\',\'rate\',this.value)"></div>' +
+    '</div>';
+}
+
+// ── Icecream ────────────────────────────────────────────────────────
+function renderIcecream(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.entries.forEach(function(e, i) {
+    var net = (parseFloat(e.received)||0) - (parseFloat(e.returned)||0);
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Entry ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delEntry(\'' + id + '\',\'icecream\',' + i + ')">&#10005;</button></div>' +
+      '<div class="grid2">' +
+        '<div class="field-group"><div class="field-label">Bulks Received</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(e.received) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'received\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Bulks Returned</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(e.returned) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'returned\',this.value)"></div>' +
+      '</div>' +
+      '<div class="field-group"><div class="field-label">Net Used</div><input class="field-input" readonly value="' + (net || '') + '"></div>' +
+      '<div class="field-group"><div class="field-label">Note</div><input class="field-input" type="text" placeholder="Any note..." value="' + escHtml(e.note) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'note\',this.value)"></div>' +
+    '</div>';
+  });
+  html += '<button class="btn-add" onclick="addEntry(\'' + id + '\',\'icecream\')">+ Add Entry</button>';
+  return html;
+}
+
+// ── Beeda ───────────────────────────────────────────────────────────
+function renderBeeda(id) {
+  var d = state.vendors[id].data;
+  return '<div class="grid3">' +
+    '<div class="field-group"><div class="field-label">Pockets Received</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.pockets) + '" oninput="setField(\'' + id + '\',\'pockets\',this.value)"></div>' +
+    '<div class="field-group"><div class="field-label">Spot Beeda Count</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.spot) + '" oninput="setField(\'' + id + '\',\'spot\',this.value)"></div>' +
+    '<div class="field-group"><div class="field-label">Amount (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.amount||'') + '" oninput="setField(\'' + id + '\',\'amount\',this.value)"></div>' +
+  '</div>';
+}
+
+// ── Pakkanam ────────────────────────────────────────────────────────
+function renderPakkanam(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.entries.forEach(function(e, i) {
+    var tot = (parseFloat(e.qty)||0)*(parseFloat(e.rate)||0);
+    var opts = PAKKANAM_ITEMS.map(function(p) {
+      return '<option value="' + escHtml(p) + '"' + (e.item === p ? ' selected' : '') + '>' + p + '</option>';
+    }).join('');
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Entry ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delEntry(\'' + id + '\',\'pakkanam\',' + i + ')">&#10005;</button></div>' +
+      '<div class="field-group"><div class="field-label">Item</div>' +
+        '<select class="field-input" onchange="setEntryField(\'' + id + '\',' + i + ',\'item\',this.value)">' + opts + '</select></div>' +
+      '<div class="grid2">' +
+        '<div class="field-group"><div class="field-label">Quantity</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(e.qty) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'qty\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Rate (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(e.rate) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'rate\',this.value)"></div>' +
+      '</div>' +
+      '<div class="field-group"><div class="field-label">Total</div><input class="field-input" readonly value="' + (tot > 0 ? '&#8377;' + tot.toLocaleString('en-IN') : '') + '"></div>' +
+    '</div>';
+  });
+  html += '<button class="btn-add" onclick="addEntry(\'' + id + '\',\'pakkanam\')">+ Add Entry</button>';
+  return html;
+}
+
+// ── Chapathi ────────────────────────────────────────────────────────
+function renderChapathi(id) {
+  var d = state.vendors[id].data;
+  return '<div class="sub-heading">Small</div>' +
+    '<div class="grid2" style="margin-bottom:12px">' +
+      '<div class="field-group"><div class="field-label">Quantity</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.small.qty) + '" oninput="setNestedField(\'' + id + '\',\'small\',\'qty\',this.value)"></div>' +
+      '<div class="field-group"><div class="field-label">Rate (&#8377;)</div><input class="field-input" type="number" placeholder="0" step="0.5" value="' + escHtml(d.small.rate) + '" oninput="setNestedField(\'' + id + '\',\'small\',\'rate\',this.value)"></div>' +
+    '</div>' +
+    '<div class="sub-heading">Big</div>' +
+    '<div class="grid2">' +
+      '<div class="field-group"><div class="field-label">Quantity</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.big.qty) + '" oninput="setNestedField(\'' + id + '\',\'big\',\'qty\',this.value)"></div>' +
+      '<div class="field-group"><div class="field-label">Rate (&#8377;)</div><input class="field-input" type="number" placeholder="0" step="0.5" value="' + escHtml(d.big.rate) + '" oninput="setNestedField(\'' + id + '\',\'big\',\'rate\',this.value)"></div>' +
+    '</div>';
+}
+
+// ── NI Cook ─────────────────────────────────────────────────────────
+function renderNiCook(id) {
+  var d = state.vendors[id].data;
+  return '<div class="grid3">' +
+    '<div class="field-group"><div class="field-label">No. of Cooks</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.cooks) + '" oninput="setField(\'' + id + '\',\'cooks\',this.value)"></div>' +
+    '<div class="field-group"><div class="field-label">Guest Count</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.guests) + '" oninput="setField(\'' + id + '\',\'guests\',this.value)"></div>' +
+    '<div class="field-group"><div class="field-label">Amount (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(d.amount||'') + '" oninput="setField(\'' + id + '\',\'amount\',this.value)"></div>' +
+  '</div>' +
+  '<div class="field-group" style="margin-top:8px"><div class="field-label">Items Cooked</div>' +
+    '<textarea class="field-input" rows="3" placeholder="e.g. Paneer Butter Masala, Naan..." oninput="setField(\'' + id + '\',\'items\',this.value)">' + escHtml(d.items) + '</textarea></div>';
+}
+
+// ── Table Frill ─────────────────────────────────────────────────────
+function renderTableFrill(id) {
+  var d = state.vendors[id].data;
+  return '<div class="field-label" style="margin-bottom:8px">Table Frill Arranged?</div>' +
+    '<div class="toggle-row">' +
+      '<button class="toggle-btn ' + (d.value === true ? 'active-yes' : '') + '" onclick="setFrill(\'' + id + '\',true)">&#10003; Yes</button>' +
+      '<button class="toggle-btn ' + (d.value === false ? 'active-no' : '') + '" onclick="setFrill(\'' + id + '\',false)">&#10007; No</button>' +
+    '</div>' +
+    '<div class="field-group" style="margin-top:8px"><div class="field-label">Amount (&#8377;)</div>' +
+      '<input class="field-input" type="number" placeholder="0" value="' + escHtml(d.amount||'') + '" oninput="setField(\'' + id + '\',\'amount\',this.value)"></div>';
+}
+
+// ── Thamboola Bag ───────────────────────────────────────────────────
+function renderThamboolaBag(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.entries.forEach(function(e, i) {
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Entry ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delEntry(\'' + id + '\',\'thamboola_bag\',' + i + ')">&#10005;</button></div>' +
+      '<div class="grid2">' +
+        '<div class="field-group"><div class="field-label">Quantity (bags)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(e.qty) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'qty\',this.value)"></div>' +
+        '<div class="field-group"><div class="field-label">Amount (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(e.amount) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'amount\',this.value)"></div>' +
+      '</div></div>';
+  });
+  html += '<button class="btn-add" onclick="addEntry(\'' + id + '\',\'thamboola_bag\')">+ Add Entry</button>';
+  return html;
+}
+
+// ── Simple Amount (பூ மாலை) ─────────────────────────────────────────
+function renderSimpleAmount(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.entries.forEach(function(e, i) {
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Entry ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delEntry(\'' + id + '\',\'simple_amount\',' + i + ')">&#10005;</button></div>' +
+      '<div class="field-group"><div class="field-label">Amount (&#8377;)</div>' +
+        '<input class="field-input" type="number" placeholder="0" value="' + escHtml(e.amount) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'amount\',this.value)"></div>' +
+    '</div>';
+  });
+  html += '<button class="btn-add" onclick="addEntry(\'' + id + '\',\'simple_amount\')">+ Add Entry</button>';
+  return html;
+}
+
+// ── Nadaswaram ──────────────────────────────────────────────────────
+function renderNadaswaram(id) {
+  var d = state.vendors[id].data;
+  return '<div class="grid2">' +
+    '<div class="field-group"><div class="field-label">Nadaswaram Artist Name</div>' +
+      '<input class="field-input" type="text" placeholder="Name" value="' + escHtml(d.name) + '" oninput="setField(\'' + id + '\',\'name\',this.value)"></div>' +
+    '<div class="field-group"><div class="field-label">Amount (&#8377;)</div>' +
+      '<input class="field-input" type="number" placeholder="0" value="' + escHtml(d.amount) + '" oninput="setField(\'' + id + '\',\'amount\',this.value)"></div>' +
+  '</div>';
+}
+
+function setFrill(id, val) {
+  state.vendors[id].data.value = val;
+  save(); refreshContent(id);
+}
+
+// ── Stalls ──────────────────────────────────────────────────────────
+function renderStalls(id) {
+  var d = state.vendors[id].data;
+  var html = '';
+  d.entries.forEach(function(e, i) {
+    html += '<div class="delivery-block">' +
+      '<div class="delivery-title">Stall ' + (i+1) +
+        ' <button class="btn-del-delivery" onclick="delEntry(\'' + id + '\',\'stalls\',' + i + ')">&#10005;</button></div>' +
+      '<div class="field-group"><div class="field-label">Description</div><input class="field-input" type="text" placeholder="e.g. Juice stall..." value="' + escHtml(e.desc) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'desc\',this.value)"></div>' +
+      '<div class="field-group"><div class="field-label">Rate (&#8377;)</div><input class="field-input" type="number" placeholder="0" value="' + escHtml(e.rate) + '" oninput="setEntryField(\'' + id + '\',' + i + ',\'rate\',this.value)"></div>' +
+    '</div>';
+  });
+  html += '<button class="btn-add" onclick="addEntry(\'' + id + '\',\'stalls\')">+ Add Stall</button>';
+  return html;
+}
+
+// ── Generic setters ─────────────────────────────────────────────────
+function setField(id, field, val) { state.vendors[id].data[field] = val; save(); refreshItemTotal(id); }
+function setNestedField(id, group, field, val) { state.vendors[id].data[group][field] = val; save(); refreshItemTotal(id); }
+function setDeliveryField(id, i, field, val) { state.vendors[id].data.deliveries[i][field] = val; save(); refreshItemTotal(id); }
+function setEntryField(id, i, field, val) { state.vendors[id].data.entries[i][field] = val; save(); refreshItemTotal(id); }
+
+function addDelivery(id, type) {
+  var d = state.vendors[id].data;
+  if (type === 'photo_amount') d.deliveries.push({ photo: null, amount: '' });
+  else if (type === 'paal_tayir') d.deliveries.push({ date: today(), time: '', paal: '', tayir: '' });
+  else if (type === 'water_bottle') d.deliveries.push({ cases: '', bpc: '', ppb: '' });
+  else if (type === 'water_can') d.deliveries.push({ count: '', price: '' });
+  else if (type === 'ilai') d.deliveries.push({ date: today(), edu: '', nuni: '', buffet: '' });
+  else if (type === 'maavu') d.deliveries.push({ date: today(), time: '', kg: '' });
+  save(); refreshContent(id);
+}
+
+function delDelivery(id, type, i) {
+  var d = state.vendors[id].data;
+  if (d.deliveries.length <= 1) { alert('At least one delivery required.'); return; }
+  d.deliveries.splice(i, 1);
+  save(); refreshContent(id);
+}
+
+function addEntry(id, type) {
+  var d = state.vendors[id].data;
+  if (type === 'emergency_buy') d.entries.push({ amount: '', person: '' });
+  else if (type === 'icecream') d.entries.push({ received: '', returned: '', note: '' });
+  else if (type === 'pakkanam') d.entries.push({ item: PAKKANAM_ITEMS[0], qty: '', rate: '' });
+  else if (type === 'stalls') d.entries.push({ desc: '', rate: '' });
+  else if (type === 'thamboola_bag') d.entries.push({ qty: '', amount: '' });
+  else if (type === 'simple_amount') d.entries.push({ amount: '' });
+  save(); refreshContent(id);
+}
+
+function delEntry(id, type, i) {
+  var d = state.vendors[id].data;
+  if (d.entries.length <= 1) { alert('At least one entry required.'); return; }
+  d.entries.splice(i, 1);
+  save(); refreshContent(id);
+}
+
+function refreshContent(id) {
+  var v = VENDORS.find(function(v) { return v.id === id; });
+  document.getElementById('content_' + id).innerHTML = renderContent(id, v.type);
+  refreshItemTotal(id);
+}
+
+function refreshItemTotal(id) {
+  var v = VENDORS.find(function(v) { return v.id === id; });
+  var total = calcTotal(id, v.type);
+  var el = document.getElementById('itotal_' + id);
+  if (el) el.textContent = total > 0 ? '₹' + total.toLocaleString('en-IN') : '';
+  updateGrandTotal();
+}
+
+function calcTotal(id, type) {
+  var d = state.vendors[id].data;
+  if (type === 'photo_amount') return d.deliveries.reduce(function(s,del){ return s+(parseFloat(del.amount)||0); }, 0);
+  if (type === 'paal_tayir') {
+    var rp = parseFloat(d.rate_paal)||0, rt = parseFloat(d.rate_tayir)||0;
+    return d.deliveries.reduce(function(s,del){ return s+(parseFloat(del.paal)||0)*rp+(parseFloat(del.tayir)||0)*rt; }, 0);
+  }
+  if (type === 'water_bottle') return d.deliveries.reduce(function(s,del){ return s+(parseFloat(del.cases)||0)*(parseFloat(del.bpc)||0)*(parseFloat(del.ppb)||0); }, 0);
+  if (type === 'water_can') return d.deliveries.reduce(function(s,del){ return s+(parseFloat(del.count)||0)*(parseFloat(del.price)||0); }, 0);
+  if (type === 'emergency_buy') return d.entries.reduce(function(s,e){ return s+(parseFloat(e.amount)||0); }, 0);
+  if (type === 'ilai') {
+    var re = parseFloat(d.rate_edu)||0, rn = parseFloat(d.rate_nuni)||0, rb = parseFloat(d.rate_buffet)||0;
+    return d.deliveries.reduce(function(s,del){ return s+(parseFloat(del.edu)||0)*re+(parseFloat(del.nuni)||0)*rn+(parseFloat(del.buffet)||0)*rb; }, 0);
+  }
+  if (type === 'maavu') { var r = parseFloat(d.rate)||0; return d.deliveries.reduce(function(s,del){ return s+(parseFloat(del.kg)||0)*r; }, 0); }
+  if (type === 'thengai') return (parseFloat(d.tamboolam.qty)||0)*(parseFloat(d.tamboolam.rate)||0)+(parseFloat(d.samayal.qty)||0)*(parseFloat(d.samayal.rate)||0);
+  if (type === 'pakkanam') return d.entries.reduce(function(s,e){ return s+(parseFloat(e.qty)||0)*(parseFloat(e.rate)||0); }, 0);
+  if (type === 'chapathi') return (parseFloat(d.small.qty)||0)*(parseFloat(d.small.rate)||0)+(parseFloat(d.big.qty)||0)*(parseFloat(d.big.rate)||0);
+  if (type === 'beeda')    return parseFloat(d.amount)||0;
+  if (type === 'ni_cook')  return parseFloat(d.amount)||0;
+  if (type === 'table_frill') return parseFloat(d.amount)||0;
+  if (type === 'stalls')   return d.entries.reduce(function(s,e){ return s+(parseFloat(e.rate)||0); }, 0);
+  if (type === 'thamboola_bag') return d.entries.reduce(function(s,e){ return s+(parseFloat(e.amount)||0); }, 0);
+  if (type === 'simple_amount') return d.entries.reduce(function(s,e){ return s+(parseFloat(e.amount)||0); }, 0);
+  if (type === 'nadaswaram')    return parseFloat(d.amount)||0;
+  return 0;
+}
+
+function updateGrandTotal() {
+  var total = VENDORS.reduce(function(s,v){ return s+calcTotal(v.id,v.type); }, 0);
+  document.getElementById('grandTotal').textContent = '₹' + total.toLocaleString('en-IN');
+}
+
+function doPrint() {
+  VENDORS.forEach(function(v) { var b = document.getElementById('body_' + v.id); if(b) b.classList.add('open'); });
+  document.getElementById('printHeader').style.display = 'block';
+  setTimeout(function(){ window.print(); }, 300);
+}
+
+document.getElementById('eventDate').value = today();
+</script>
+</body>
+</html>
